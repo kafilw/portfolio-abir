@@ -1,3 +1,22 @@
+@if (session()->has('message'))
+    <div>
+        {{ session()->get('message')}}
+    </div>
+
+@endif
+
+
+@if ($errors->any())
+    <div>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li> {{ $error }} </li>
+            @endforeach
+        </ul>
+    </div>
+
+@endif
+
 <x-guest-layout>
     <form method="POST" action="/photos" enctype="multipart/form-data">
         @csrf
@@ -18,6 +37,13 @@
                 <option value="outdoor">Outdoor</option>
             </select>
             <x-input-error :messages="$errors->get('category')" class="mt-2" />
+        </div>
+
+        <!-- Rank Input -->
+        <div class="mt-4">
+            <x-input-label for="rank" :value="__('Rank')" />
+            <input id="rank" class="block mt-1 w-full" type="number" name="rank" required />
+            <x-input-error :messages="$errors->get('rank')" class="mt-2" />
         </div>
 
         <div class="flex items-center justify-end mt-4">

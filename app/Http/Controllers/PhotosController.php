@@ -37,8 +37,8 @@ class PhotosController extends Controller
     {
         //dd($request);
         $request->validate([
-            'category' => 'required',
-            'rank' => 'required|in:wedding,product,outdoor',
+            'category' => 'required|in:wedding,product,outdoor',
+            'rank' => 'required',
             'photo' => 'required|mimes:png,jpg,jpeg,cr2',
         ]);
 
@@ -53,7 +53,7 @@ class PhotosController extends Controller
             'name' => $newImageName,
         ]);
 
-        return redirect('/photos')->with('message', 'ADDED!!');
+        return redirect('/photos/create')->with('message', 'ADDED!!');
     }
 
     /**
