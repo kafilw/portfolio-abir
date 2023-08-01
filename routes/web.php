@@ -29,9 +29,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource('/photos', PhotosController::class);
+Route::resource('/photos', PhotosController::class)->middleware('auth');
 
 Route::get('/photos/category/{category}', [PhotosController::class, 'showByCategory'])->name('photos.category');
+
+//Route::get('/photos/edit', [PhotosController::class, 'index']);
 
 //Route::post('/photos', [PhotosController::class, 'store'])->name('photos.store');
 

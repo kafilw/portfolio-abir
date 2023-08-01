@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Photos;
 
 class PhotosController extends Controller
@@ -13,7 +14,7 @@ class PhotosController extends Controller
     public function index()
     {
         return view('photos.index')
-            ->with('photos', Photos::orderBy('rank', 'DESC')->get());
+            ->with('photos', Photos::orderBy('rank', 'ASC')->get());
     }
 
     public function showByCategory($category)
@@ -39,7 +40,7 @@ class PhotosController extends Controller
         $request->validate([
             'category' => 'required|in:wedding,product,outdoor',
             'rank' => 'required',
-            'photo' => 'required|mimes:png,jpg,jpeg,cr2',
+            'photo' => 'required|mimes:png,jpg,jpeg',
         ]);
 
         $newImageName = uniqid() . '-' . $request->category . '.' .
@@ -61,15 +62,17 @@ class PhotosController extends Controller
      */
     public function show(string $id)
     {
-        //
+        //Not needed, used showByCategory instead
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        //dd(Photos::where('id', $id)->first()->toArray());
+        return view('photos.edit')
+            ->with('photo', Photos::where('id', $id)->first());
     }
 
     /**
@@ -77,7 +80,12 @@ class PhotosController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        Photos::where('id', $id)->update([
+            'category' => $request->input('category'),
+            'rank' => $request->input('rank'),
+        ]);
+        return redirect('/photos')
+            ->with('message', 'Photo with ID '.$id.' UPDATED!!');
     }
 
     /**
@@ -85,6 +93,15 @@ class PhotosController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $photo = Photos::where('id', $id)->first();
+        if (Storage::disk('public/images')->exists($photo->name)) {
+            Storage::disk('public/images')->delete($photo->name);
+            //return "File $photo->name has been deleted.";
+        }
+
+        //return "File $photo->name not found.";
+        $photo->delete();
+        return redirect('/photos')
+            ->with('message', 'Photo with ID '.$id.' DELETED!!');
     }
 }

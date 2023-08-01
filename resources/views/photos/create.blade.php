@@ -32,6 +32,7 @@
         <div class="mt-4">
             <x-input-label for="category" :value="__('Category')" />
             <select id="category" class="block mt-1 w-full" name="category" required>
+                <option value="none" selected disabled hidden>Select an Option</option>
                 <option value="wedding">Wedding</option>
                 <option value="product">Product</option>
                 <option value="outdoor">Outdoor</option>
@@ -48,9 +49,11 @@
 
         <div class="flex items-center justify-end mt-4">
             <!-- Add Cancel Button if needed -->
-            <x-secondary-button href="{{route('dashboard')}}" class="mr-4">
-                {{ __('Cancel') }}
-            </x-secondary-button>
+            <a href="{{route('photos.index')}}">
+                <x-secondary-button class="mr-4">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+            </a>
 
             <x-primary-button>
                 {{ __('Upload Photo') }}
