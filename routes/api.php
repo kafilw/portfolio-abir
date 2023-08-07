@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\PhotosController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +19,22 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+//Route::apiResource('/photos', PhotosController::class);
+Route::controller(PhotosController::class)->group(function () {
+    Route::get('photos', 'index');
+    Route::get('photos/category/{category}', 'showByCategory');
+    Route::get('photos/{id}', 'edit');
+    Route::post('photos', 'store');
+    Route::put('photos/{id}', 'update');
+    Route::delete('photos/{id}', 'destroy');
+    Route::get('photos/{id}', 'show');
+    Route::post('photos/f', 'fkthis');
+});
+
+Route::controller(AuthController::class)->group(function () {
+    Route::post('login', 'login');
+    Route::post('register', 'register');
+    Route::post('logout', 'logout');
 });

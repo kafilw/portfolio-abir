@@ -1,8 +1,7 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PhotosController;
+//use App\Http\Controllers\PhotosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,23 +18,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+//Route::resource('/photos', PhotosController::class);
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+//Route::get('/photos/category/{category}', [PhotosController::class, 'showByCategory'])->name('photos.category');
 
-Route::resource('/photos', PhotosController::class)->middleware('auth');
-
-Route::get('/photos/category/{category}', [PhotosController::class, 'showByCategory'])->name('photos.category');
-
-//Route::get('/photos/edit', [PhotosController::class, 'index']);
-
-//Route::post('/photos', [PhotosController::class, 'store'])->name('photos.store');
-
-
-require __DIR__.'/auth.php';

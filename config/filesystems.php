@@ -43,12 +43,6 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
-        'public/images' => [
-            'driver' => 'local',
-            'root' => public_path('images'), // The path to the 'public/images' folder
-            'url' => env('APP_URL').'/public/images',
-            'visibility' => 'public',
-        ],
 
         's3' => [
             'driver' => 's3',
