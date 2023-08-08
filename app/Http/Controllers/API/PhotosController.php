@@ -8,15 +8,23 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Photos;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\PhotosRepository;
 
 class PhotosController extends Controller
 {
+    protected $photosRepository;
+
+    public function __construct(PhotosRepository $photosRepository)
+    {
+        $this->photosRepository = $photosRepository;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $photos = Photos::orderBy('rank', 'ASC')->get();
+        $photos = $this->photosRepository->index();
         return response()->json([
             'photos' => $photos,
         ]);
@@ -28,10 +36,8 @@ class PhotosController extends Controller
         $user_id = $request->query('user_id');
 
         $photos = Photos::orderBy('rank', 'ASC');
-        //dd($categories);
 
         if ($categories) {
-            //$categoriesArray = explode('&categories=', $categories); // Convert comma-separated string to array
             $photos = $photos->whereIn('category', $categories);
         }
 
@@ -40,19 +46,15 @@ class PhotosController extends Controller
         }
 
         $photos = $photos->get();
-        //dd($categories);
 
         return response()->json([
             'photos' => $photos,
         ]);
     }
 
-
-
-
     public function showByCategory($category)
     {
-        $photos = Photos::where('category', $category)->get();
+        $photos = $this->photosRepository->showByCategory($category);
         return response()->json([
             'photos' => $photos,
             'category' => $category,
@@ -73,37 +75,28 @@ class PhotosController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request);
         $request->validate([
             'category' => 'required|in:wedding,product,outdoor',
             'rank' => 'required',
             'photo' => 'required',
         ]);
-        //dd($request);
 
         $newImageName = url('/') . '/images' . '/' .uniqid() . '-' . $request->category . '.' .
         $request->photo->extension();
-
         $request->photo->move(public_path('images'), $newImageName);
         $user = Auth::user();
         $userID = $user->id;
-
-        Photos::create([
-            'category' => $request->input('category'),
-            'rank' => $request->input('rank'),
+        $request->merge([
             'name' => $newImageName,
             'user_id' => $userID,
         ]);
 
+        $photo = $this->photosRepository->store($request);
+
         return response()->json([
             'message' => 'Photo created successfully',
-            'photo' => [
-                'category' => $request->input('category'),
-                'rank' => $request->input('rank'),
-                'name' => $newImageName,
-                'user_id' => $userID,
-            ]
-        ], 201);
+            'photo' => $photo
+        ]);
         //return redirect('/photos/create')->with('message', 'ADDED!!');
     }
 
@@ -112,10 +105,15 @@ class PhotosController extends Controller
      */
     public function show(string $id)
     {
-        $photo = Photos::where('id', $id)->first();
-        return response()->json([
-            'photo' => $photo,
-        ]);
+        $photoData = $this->photosRepository->show($id);
+
+        if ($photoData === null) {
+            return response()->json([
+                'message' => 'Photo not found',
+            ], 404);
+        }
+
+        return response()->json($photoData);
     }
 
     /**
@@ -123,8 +121,7 @@ class PhotosController extends Controller
      */
     public function edit($id)
     {
-        //dd(Photos::where('id', $id)->first()->toArray());
-        $photo = Photos::where('id', $id)->first();
+        $photo = $this->photosRepository->show($id);
         return response()->json([
             'photo' => $photo,
         ]);
@@ -135,22 +132,22 @@ class PhotosController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //dd($request->input('category'));
-        if(Photos::where('id', $id)->update([
-            'category' => $request->category,
-            'rank' => $request->rank,
-        ])) {
+        $photo = $this->photosRepository->show($id);
+        if(is_null($photo)) {
             return response()->json([
-                'message' => 'Photo updated successfully',
-                'photo' => [
-                    'id' => $id,
-                    'category' => $request->input('category'),
-                    'rank' => $request->input('rank'),
-                ]
+                'message' => 'Photo not found',
             ]);
         }
+        //dd($request);
+        $this->photosRepository->update($request, $id);
+
         return response()->json([
-            'message' => 'Photo not updated',
+            'message' => 'Photo updated successfully',
+            'photo' => [
+                'id' => $id,
+                'category' => $request->input('category'),
+                'rank' => $request->input('rank'),
+            ]
         ]);
 
         // return redirect('/photos')
@@ -162,21 +159,23 @@ class PhotosController extends Controller
      */
     public function destroy(string $id)
     {
-        $photo = Photos::where('id', $id)->first();
-        // Get the full URL of the file using the 'public' disk
+        $photo = $this->photosRepository->show($id);
+        if(is_null($photo)) {
+            return response()->json([
+                'message' => 'Photo not found',
+            ]);
+        }
         $fullUrl = $photo->name;
 
-        // Extract the file name from the URL by stripping the base URL
         $fileName = str_replace(url('/'), '', $fullUrl);
         if (Storage::disk('public')->exists('images/' . $fileName)) {
             Storage::disk('public')->delete('images/' . $fileName);
-            //return "File $photo->name has been deleted.";
         }
 
-        //return "File $photo->name not found.";
-        $photo->delete();
+        $deleted = $this->photosRepository->destroy($id);
         return response()->json([
             'message' => 'Photo deleted successfully',
+            'deleted' => $deleted,
             'photo' => $photo,
         ]);
         // return redirect('/photos')

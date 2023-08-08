@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 //Route::apiResource('/photos', PhotosController::class);
 Route::controller(PhotosController::class)->group(function () {
-    Route::get('photos', 'index')->middleware('auth:sanctum');
+    Route::get('photos', 'index');
     Route::get('photos/category/{category}', 'showByCategory')->middleware('auth:sanctum');
     Route::get('photos/{id}', 'edit')->middleware('auth:sanctum');
     Route::post('photos', 'store')->middleware('auth:sanctum');
