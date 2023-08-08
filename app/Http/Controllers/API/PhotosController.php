@@ -22,10 +22,33 @@ class PhotosController extends Controller
         ]);
     }
 
-    public function showByFilter()
+    public function showByFilter(Request $request)
     {
+        $categories = $request->query('categories');
+        $user_id = $request->query('user_id');
 
+        $photos = Photos::orderBy('rank', 'ASC');
+        //dd($categories);
+
+        if ($categories) {
+            //$categoriesArray = explode('&categories=', $categories); // Convert comma-separated string to array
+            $photos = $photos->whereIn('category', $categories);
+        }
+
+        if ($user_id) {
+            $photos = $photos->where('user_id', $user_id);
+        }
+
+        $photos = $photos->get();
+        //dd($categories);
+
+        return response()->json([
+            'photos' => $photos,
+        ]);
     }
+
+
+
 
     public function showByCategory($category)
     {
@@ -62,12 +85,14 @@ class PhotosController extends Controller
         $request->photo->extension();
 
         $request->photo->move(public_path('images'), $newImageName);
+        $user = Auth::user();
+        $userID = $user->id;
 
         Photos::create([
             'category' => $request->input('category'),
             'rank' => $request->input('rank'),
             'name' => $newImageName,
-            'user_id' => auth()->user()->id,
+            'user_id' => $userID,
         ]);
 
         return response()->json([
@@ -76,7 +101,7 @@ class PhotosController extends Controller
                 'category' => $request->input('category'),
                 'rank' => $request->input('rank'),
                 'name' => $newImageName,
-                'user_id' => auth()->user()->id,
+                'user_id' => $userID,
             ]
         ], 201);
         //return redirect('/photos/create')->with('message', 'ADDED!!');
@@ -161,7 +186,7 @@ class PhotosController extends Controller
     public function fkthis(Request $request)
     {
         $user = Auth::user();
-        dd($user);
+        dd($user->id);
         // Access user's token
         // $token = $user->currentAccessToken();
     }

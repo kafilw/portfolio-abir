@@ -13,6 +13,7 @@ class Photos extends Model
         'name',
         'rank',
         'category',
+        'user_id',
     ];
 
     protected $casts = [

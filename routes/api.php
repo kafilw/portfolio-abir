@@ -23,15 +23,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 //Route::apiResource('/photos', PhotosController::class);
 Route::controller(PhotosController::class)->group(function () {
-    Route::get('photos', 'index');
-    Route::get('photos/category/{category}', 'showByCategory');
-    Route::get('photos/{id}', 'edit');
-    Route::post('photos', 'store');
-    Route::put('photos/{id}', 'update');
-    Route::delete('photos/{id}', 'destroy');
-    Route::get('photos/{id}', 'show');
-    Route::post('photos/f', 'fkthis');
+    Route::get('photos', 'index')->middleware('auth:sanctum');
+    Route::get('photos/category/{category}', 'showByCategory')->middleware('auth:sanctum');
+    Route::get('photos/{id}', 'edit')->middleware('auth:sanctum');
+    Route::post('photos', 'store')->middleware('auth:sanctum');
+    Route::put('photos/{id}', 'update')->middleware('auth:sanctum');
+    Route::delete('photos/{id}', 'destroy')->middleware('auth:sanctum');
+    Route::get('photos/{id}', 'show')->middleware('auth:sanctum');
+    Route::post('photos/f', 'fkthis')->middleware('auth:sanctum');
+    Route::get('filter', 'showByFilter');
 });
+
+
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
