@@ -10,7 +10,7 @@ class PhotosRepository implements PhotosRepositoryInterface
 {
     public function index()
     {
-        return Photos::orderBy('rank', 'ASC')->get();
+        return Photos::orderBy('id', 'ASC')->get();
     }
 
     public function showByFilter($request)
@@ -18,15 +18,20 @@ class PhotosRepository implements PhotosRepositoryInterface
         //dynamic query
         $categories = $request->query('categories');
         $user_id = $request->query('user_id');
+        $perPage = $request->query('perPage');
 
-        return Photos::orderBy('id', 'ASC')
+        $photos = Photos::orderBy('id', 'ASC')
             ->when($categories, function ($query, $categories) {
                 return $query->whereIn('category', $categories);
             })
             ->when($user_id, function ($query, $user_id) {
                 return $query->where('user_id', $user_id);
-            })
-            ->get();
+            });
+
+        $paginatedPhotos = $photos->paginate($perPage);
+        //req e page no ashbe and main post author er name
+
+        return $paginatedPhotos;
     }
 
     public function showByCategory($category)
@@ -66,7 +71,7 @@ class PhotosRepository implements PhotosRepositoryInterface
     public function show($id)
     {
         //$photo = Photos::find($id);
-        $photo = Photos::with('comment.user')->find($id);
+        $photo = Photos::with(['comment.user', 'user'])->find($id);
 
 
         if (is_null($photo)) {

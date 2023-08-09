@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\PhotosController;
-
+use App\Http\Controllers\API\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +32,10 @@ Route::controller(PhotosController::class)->group(function () {
     Route::get('photos/{id}', 'show')->middleware('auth:sanctum');
     Route::post('photos/f', 'fkthis')->middleware('auth:sanctum');
     Route::get('filter', 'showByFilter');
+});
+
+Route::controller(CommentController::class)->group(function () {
+    Route::post('photos/{id}', 'store')->middleware('auth:sanctum');
 });
 
 
