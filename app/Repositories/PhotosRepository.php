@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\PhotosRepositoryInterface;
 use App\Models\Photos;
 
+
 class PhotosRepository implements PhotosRepositoryInterface
 {
     public function index()
@@ -15,6 +16,17 @@ class PhotosRepository implements PhotosRepositoryInterface
     public function showByFilter($request)
     {
         //dynamic query
+        $categories = $request->query('categories');
+        $user_id = $request->query('user_id');
+
+        return Photos::orderBy('id', 'ASC')
+            ->when($categories, function ($query, $categories) {
+                return $query->whereIn('category', $categories);
+            })
+            ->when($user_id, function ($query, $user_id) {
+                return $query->where('user_id', $user_id);
+            })
+            ->get();
     }
 
     public function showByCategory($category)

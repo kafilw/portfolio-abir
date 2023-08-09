@@ -2,6 +2,7 @@
 
 namespace App\Interfaces;
 
+
 interface PhotosRepositoryInterface
 {
     public function index();

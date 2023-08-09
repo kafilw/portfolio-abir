@@ -32,20 +32,7 @@ class PhotosController extends Controller
 
     public function showByFilter(Request $request)
     {
-        $categories = $request->query('categories');
-        $user_id = $request->query('user_id');
-
-        $photos = Photos::orderBy('rank', 'ASC');
-
-        if ($categories) {
-            $photos = $photos->whereIn('category', $categories);
-        }
-
-        if ($user_id) {
-            $photos = $photos->where('user_id', $user_id);
-        }
-
-        $photos = $photos->get();
+        $photos = $this->photosRepository->showByFilter($request);
 
         return response()->json([
             'photos' => $photos,
