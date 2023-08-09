@@ -65,25 +65,30 @@ class PhotosRepository implements PhotosRepositoryInterface
     }
     public function show($id)
     {
-        $photo = Photos::find($id);
+        //$photo = Photos::find($id);
+        $photo = Photos::with('comment.user')->find($id);
+
 
         if (is_null($photo)) {
             return null;
         }
+        return $photo;
+        // $user_name = $photo->user->name;
+        // $comment = $photo->comment;
+        // //$comment_id = $comment->id;
 
-        $user_name = $photo->user->name;
+        // $photoDetail = (object) [
+        //     'id' => $photo->id,
+        //     'name' => $photo->name,
+        //     'category' => $photo->category,
+        //     'rank' => $photo->rank,
+        //     'created_at' => $photo->created_at,
+        //     'updated_at' => $photo->updated_at,
+        //     'author' => $user_name,
+        //     'comment' => $comment,
+        // ];
 
-        $photoWithUserName = (object) [
-            'id' => $photo->id,
-            'name' => $photo->name,
-            'category' => $photo->category,
-            'rank' => $photo->rank,
-            'created_at' => $photo->created_at,
-            'updated_at' => $photo->updated_at,
-            'author' => $user_name,
-        ];
-
-        return $photoWithUserName;
+        // return $photoDetail;
     }
     public function fkthis($request)
     {
